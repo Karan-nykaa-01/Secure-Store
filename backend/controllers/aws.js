@@ -33,12 +33,9 @@ const uploadImage = async (req, res) => {
 
     // � Save upload record to database
     const uploadRecord = await Upload.create({
-      userId: req.user._id,
       fileName: file.originalname,
-      fileKey: finalKey,
       fileUrl: imageUrl,
       fileSize: file.size,
-      mimeType: file.mimetype
     });
 
     // 🔍 log stored image info

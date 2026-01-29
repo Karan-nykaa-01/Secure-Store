@@ -1,11 +1,54 @@
 import { useEffect, useContext } from 'react';
-import { Clock, Image as ImageIcon, ExternalLink, Calendar, FileText, AlertCircle } from 'lucide-react';
+import { Image as ImageIcon, ExternalLink, Copy, AlertCircle } from 'lucide-react';
 import { AppContext } from '../context/AppContext';
 import { toast } from 'react-hot-toast';
 import Loader from '../components/Loader';
 
 export default function History() {
-  const { uploads, uploadsLoading, fetchUploadHistory } = useContext(AppContext);
+  const { uploadsLoading=false, fetchUploadHistory } = useContext(AppContext);
+
+  const uploads = [
+    {
+      _id: '1',
+      fileName: 'sunset.jpg',
+      fileSize: 204800,
+      mimeType: 'image/jpeg',
+      fileUrl: 'https://example.com/sunset.jpg',
+      createdAt: '2024-06-15T14:30:00Z'
+    },
+    {
+      _id: '2',
+      fileName: 'mountains.png',
+      fileSize: 512000,
+      mimeType: 'image/png',
+      fileUrl: 'https://example.com/mountains.png',
+      createdAt: '2024-06-14T10:15:00Z'
+    },
+    {
+      _id: '3',
+      fileName: 'forest.gif',
+      fileSize: 102400,
+      mimeType: 'image/gif',
+      fileUrl: 'https://example.com/forest.gif',
+      createdAt: '2024-06-13T08:45:00Z'
+    },
+    {
+      _id: '4',
+      fileName: 'beach.bmp',
+      fileSize: 307200,
+      mimeType: 'image/bmp',
+      fileUrl: 'https://example.com/beach.bmp',
+      createdAt: '2024-06-12T16:20:00Z'
+    },
+    {
+      _id: '5',
+      fileName: 'cityscape.tiff',
+      fileSize: 409600,
+      mimeType: 'image/tiff',
+      fileUrl: 'https://example.com/cityscape.tiff',
+      createdAt: '2024-06-11T12:00:00Z'
+    }
+  ]
 
   useEffect(() => {
     fetchUploadHistory();
@@ -35,175 +78,119 @@ export default function History() {
     return (bytes / (1024 * 1024)).toFixed(2) + ' MB';
   };
 
-  if (uploadsLoading) {
-    return <Loader message="Loading your upload history..." />;
-  }
+  const copyToClipboard = (url) => {
+    navigator.clipboard.writeText(url);
+    toast.success('URL copied to clipboard!');
+  };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 py-12 px-4 sm:px-6 lg:px-8">
-      <div className="max-w-6xl mx-auto">
+    <div className="h-screen overflow-hidden bg-gradient-to-br from-gray-50 to-gray-100 p-6">
+      <div className="h-full max-w-7xl mx-auto flex flex-col">
         {/* Header */}
-        <div className="text-center mb-10">
-          <h1 className="text-4xl font-bold text-gray-900 mb-3">
+        <div className="mb-6">
+          <h1 className="text-2xl font-bold text-gray-900 mb-2">
             Upload History
           </h1>
-          <p className="text-lg text-gray-600">
-            View your recent image uploads and access them anytime
+          <p className="text-sm text-gray-600">
+            You last 5 uploads are listed below
           </p>
         </div>
 
-        {/* Stats Card */}
-        <div className="bg-white rounded-xl shadow-lg p-6 mb-8">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center space-x-4">
-              <div className="bg-blue-100 p-4 rounded-lg">
-                <ImageIcon className="w-8 h-8 text-blue-600" />
-              </div>
-              <div>
-                <p className="text-sm text-gray-500">Total Uploads</p>
-                <p className="text-3xl font-bold text-gray-900">{uploads.length}</p>
-              </div>
+
+        {/* Table Card */}
+        <div className="flex-1 bg-white rounded-lg shadow-sm overflow-hidden flex flex-col">
+          {uploadsLoading ? (
+            <div className="flex-1 flex items-center justify-center">
+              <Loader message="Loading your upload history..." />
             </div>
-            <div className="text-right">
-              <p className="text-sm text-gray-500">Last 5 uploads</p>
-              <p className="text-sm font-medium text-blue-600">Most Recent First</p>
-            </div>
-          </div>
-        </div>
-
-        {/* Upload List */}
-        {uploads.length === 0 ? (
-          <div className="bg-white rounded-2xl shadow-lg p-12 text-center">
-            <div className="w-24 h-24 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-6">
-              <ImageIcon className="w-12 h-12 text-gray-400" />
-            </div>
-            <h3 className="text-2xl font-semibold text-gray-900 mb-3">
-              No uploads yet
-            </h3>
-            <p className="text-gray-600 mb-6">
-              Start uploading images to see them appear here
-            </p>
-            <a
-              href="/"
-              className="inline-block bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 px-8 rounded-lg transition-colors"
-            >
-              Upload Your First Image
-            </a>
-          </div>
-        ) : (
-          <div className="space-y-4">
-            {uploads.map((upload, index) => (
-              <div
-                key={upload._id}
-                className="bg-white rounded-xl shadow-lg hover:shadow-xl transition-shadow duration-300 overflow-hidden"
-              >
-                <div className="flex flex-col md:flex-row">
-                  {/* Image Preview */}
-                  <div className="md:w-64 h-48 md:h-auto bg-gray-100 flex-shrink-0">
-                    <img
-                      src={upload.fileUrl}
-                      alt={upload.fileName}
-                      className="w-full h-full object-cover"
-                      onError={(e) => {
-                        e.target.src = 'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" width="100" height="100"%3E%3Crect fill="%23ddd" width="100" height="100"/%3E%3Ctext fill="%23999" x="50%25" y="50%25" text-anchor="middle" dy=".3em"%3ENo Image%3C/text%3E%3C/svg%3E';
-                      }}
-                    />
-                  </div>
-
-                  {/* Content */}
-                  <div className="flex-1 p-6">
-                    <div className="flex items-start justify-between mb-4">
-                      <div className="flex-1">
-                        <div className="flex items-center space-x-2 mb-2">
-                          <span className="bg-blue-100 text-blue-800 text-xs font-semibold px-3 py-1 rounded-full">
-                            #{uploads.length - index}
-                          </span>
-                          <h3 className="text-lg font-semibold text-gray-900 truncate">
-                            {upload.fileName}
-                          </h3>
-                        </div>
-                        <p className="text-sm text-gray-500">
-                          {formatFileSize(upload.fileSize)} • {upload.mimeType}
-                        </p>
-                      </div>
-                      <a
-                        href={upload.fileUrl}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="ml-4 p-2 bg-blue-100 hover:bg-blue-200 rounded-lg transition-colors"
-                        title="Open in new tab"
-                      >
-                        <ExternalLink className="w-5 h-5 text-blue-600" />
-                      </a>
-                    </div>
-
-                    {/* Date and Time Info */}
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                      <div className="flex items-center space-x-3 bg-gray-50 rounded-lg p-3">
-                        <Calendar className="w-5 h-5 text-gray-600" />
-                        <div>
-                          <p className="text-xs text-gray-500">Upload Date</p>
-                          <p className="text-sm font-medium text-gray-900">
-                            {formatDate(upload.createdAt)}
-                          </p>
-                        </div>
-                      </div>
-                      <div className="flex items-center space-x-3 bg-gray-50 rounded-lg p-3">
-                        <Clock className="w-5 h-5 text-gray-600" />
-                        <div>
-                          <p className="text-xs text-gray-500">Upload Time</p>
-                          <p className="text-sm font-medium text-gray-900">
-                            {formatTime(upload.createdAt)}
-                          </p>
-                        </div>
-                      </div>
-                    </div>
-
-                    {/* URL Display */}
-                    <div className="mt-4 bg-blue-50 border border-blue-200 rounded-lg p-3">
-                      <div className="flex items-start space-x-2">
-                        <FileText className="w-4 h-4 text-blue-600 mt-0.5 flex-shrink-0" />
-                        <div className="flex-1 min-w-0">
-                          <p className="text-xs text-blue-600 font-medium mb-1">Image URL</p>
-                          <p className="text-xs text-blue-800 break-all font-mono">
-                            {upload.fileUrl}
-                          </p>
-                        </div>
-                        <button
-                          onClick={() => {
-                            navigator.clipboard.writeText(upload.fileUrl);
-                            toast.success('URL copied to clipboard!');
+          ) : uploads.length === 0 ? (
+            <EmptyState />
+          ) : (
+            <div className="flex-1 overflow-auto">
+              <table className="w-full">
+                <thead className="bg-gray-50 border-b border-gray-200 sticky top-0">
+                  <tr>
+                    <th className="px-6 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
+                      Preview
+                    </th>
+                    <th className="px-6 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
+                      File Name
+                    </th>
+                    <th className="px-6 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
+                      Upload Date
+                    </th>
+                    <th className="px-6 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
+                      Actions
+                    </th>
+                  </tr>
+                </thead>
+                <tbody className="bg-white divide-y divide-gray-200">
+                  {uploads.map((upload, index) => (
+                    <tr key={upload._id} className="hover:bg-gray-50 transition-colors">
+                      <td className="px-6 py-4 whitespace-nowrap">
+                        <img
+                          src={upload.fileUrl}
+                          alt={upload.fileName}
+                          className="w-12 h-12 object-cover rounded border border-gray-200"
+                          onError={(e) => {
+                            e.target.src = 'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" width="48" height="48"%3E%3Crect fill="%23e5e7eb" width="48" height="48"/%3E%3Ctext fill="%239ca3af" x="50%25" y="50%25" text-anchor="middle" dy=".3em" font-size="10"%3ENo Image%3C/text%3E%3C/svg%3E';
                           }}
-                          className="text-xs bg-blue-600 hover:bg-blue-700 text-white px-3 py-1 rounded transition-colors whitespace-nowrap"
-                        >
-                          Copy
-                        </button>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            ))}
-          </div>
-        )}
-
-        {/* Info Footer */}
-        {uploads.length > 0 && (
-          <div className="mt-8 bg-yellow-50 border border-yellow-200 rounded-lg p-6">
-            <div className="flex items-start space-x-3">
-              <AlertCircle className="w-6 h-6 text-yellow-600 flex-shrink-0 mt-0.5" />
-              <div>
-                <h3 className="font-semibold text-yellow-900 mb-2">
-                  Storage Information
-                </h3>
-                <p className="text-sm text-yellow-800">
-                  Showing your last 5 uploads. All images are securely stored in AWS S3 
-                  and remain accessible through their unique URLs indefinitely.
-                </p>
-              </div>
+                        />
+                      </td>
+                      <td className="px-6 py-4 text-sm text-gray-900">
+                        <div className="max-w-xs truncate" title={upload.fileName}>
+                          {upload.fileName}
+                        </div>
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600">
+                        {formatDate(upload.createdAt)}
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm">
+                        <div className="flex items-center space-x-2">
+                          <button
+                            onClick={() => copyToClipboard(upload.fileUrl)}
+                            className="p-2 bg-gray-100 hover:bg-gray-200 rounded transition-colors"
+                            title="Copy URL"
+                          >
+                            <Copy className="w-4 h-4 text-gray-600" />
+                          </button>
+                          <a
+                            href={upload.fileUrl}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="p-2 bg-blue-100 hover:bg-blue-200 rounded transition-colors"
+                            title="Open in new tab"
+                          >
+                            <ExternalLink className="w-4 h-4 text-blue-600" />
+                          </a>
+                        </div>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
             </div>
-          </div>
-        )}
+          )}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// Empty State Component
+function EmptyState() {
+  return (
+    <div className="flex-1 flex items-center justify-center p-12">
+      <div className="text-center">
+        <div className="w-20 h-20 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
+          <ImageIcon className="w-10 h-10 text-gray-400" />
+        </div>
+        <h3 className="text-xl font-semibold text-gray-900 mb-2">
+          No uploads yet
+        </h3>
+        <p className="text-gray-600 mb-4 text-sm">
+          Start uploading images to see them appear here
+        </p>
       </div>
     </div>
   );

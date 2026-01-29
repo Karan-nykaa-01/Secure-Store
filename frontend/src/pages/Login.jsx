@@ -1,37 +1,22 @@
 import { useState, useContext } from "react";
 import { FaUser } from "react-icons/fa";
-import { useNavigate } from "react-router-dom";
 import Input from "../components/Input";
 import Button from "../components/Button";
 import PasswordInput from "../components/PasswordInput";
 import { AppContext } from "../context/AppContext";
-import { toast } from "react-hot-toast";
 
 export default function Login() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
   const { login } = useContext(AppContext);
-  const navigate = useNavigate();
 
   const handleLogin = async (e) => {
     e.preventDefault();
-    
-    if (!email || !password) {
-      toast.error("Please fill in all fields");
-      return;
-    }
 
     setLoading(true);
-    try {
-      await login(email, password);
-      toast.success("Login successful!");
-      navigate("/");
-    } catch (error) {
-      toast.error(error.message || "Login failed");
-    } finally {
-      setLoading(false);
-    }
+    await login(email, password);
+    setLoading(false);
   };
 
   return (

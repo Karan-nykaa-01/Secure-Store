@@ -32,7 +32,7 @@ const login = async (req, res) => {
 
     res.cookie("auth_token", token, cookieOptions);
 
-    res.status(200).json({ message: "Login successful" });
+    res.status(200).json({ message: "Login successful", user: { email: adminEmail } });
   } catch (error) {
     console.error("Login error:", error);
     res.status(500).json({ message: "Server Error" });

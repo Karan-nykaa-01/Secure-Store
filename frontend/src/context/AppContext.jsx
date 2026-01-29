@@ -1,6 +1,6 @@
 /* eslint-disable react-refresh/only-export-components */
 import { createContext, useState, useEffect } from "react";
-import { useNavigate, useLocation } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { toast } from "react-hot-toast";
 import { axiosInstance } from "../lib/axiosInstance";
 
@@ -8,10 +8,9 @@ export const AppContext = createContext();
 
 export const AppProvider = ({ children }) => {
   const navigate = useNavigate();
-  const location = useLocation();
 
   const [user, setUser] = useState(null);
-  const [loading, setLoading] = useState(true);
+  const [checkingAuth, setCheckingAuth] = useState(true);
 
   // Check authentication on mount
   useEffect(() => {
@@ -21,54 +20,39 @@ export const AppProvider = ({ children }) => {
   // CHECK AUTH
   const checkAuth = async () => {
     try {
-      const response = await axiosInstance.get("/auth/me");
-      if (response.data.success) {
-        setUser(response.data.user);
-        // If on login page and authenticated, redirect to dashboard
-        if (location.pathname === "/login") {
-          navigate("/");
-        }
-      }
+      const res = await axiosInstance.get("/auth/me");
+      setUser(res.data.user);
     } catch (error) {
-      // User not authenticated
       setUser(null);
-      // Redirect to login if trying to access protected routes
-      const publicRoutes = ["/login"];
-      if (!publicRoutes.includes(location.pathname)) {
-        navigate("/login");
-      }
+      console.error("Authentication check failed", error);
     } finally {
-      setLoading(false);
+      setCheckingAuth(false);
     }
   };
 
   // LOGIN
   const login = async (email, password) => {
     try {
-      const response = await axiosInstance.post("/auth/login", {
-        email,
-        password,
-      });
-      
-      if (response.data.user) {
-        setUser(response.data.user);
-        return response.data;
-      }
+      const res = await axiosInstance.post("/auth/login", { email, password });
+      toast.success(res.data.message || "Login successful");
+      setUser(res.data.user);
+      navigate("/");
     } catch (error) {
-      const message = error.response?.data?.message || "Login failed";
-      throw new Error(message);
+      console.log(error);
+      toast.error(error.response.data.message || "Login failed");
     }
   };
 
   // LOGOUT
   const logout = async () => {
     try {
-      await axiosInstance.post("/auth/logout");
+      const res = await axiosInstance.get("/auth/logout");
+      toast.success(res.data.message || "Logout successful");
       setUser(null);
-      toast.success("Logged out successfully");
       navigate("/login");
     } catch (error) {
-      toast.error("Logout failed");
+      console.log(error);
+      toast.error(error.response.data.message || "Logout failed");
     }
   };
 
@@ -76,7 +60,7 @@ export const AppProvider = ({ children }) => {
     <AppContext.Provider
       value={{
         user,
-        loading,
+        checkingAuth,
         login,
         logout,
         checkAuth,

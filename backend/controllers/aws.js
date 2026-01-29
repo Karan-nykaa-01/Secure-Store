@@ -50,7 +50,7 @@ const uploadImage = async (req, res) => {
       url: imageUrl,
     });
 
-    res.json({
+    res.status(200).json({
       message: "Upload successful",
       key: finalKey,
       url: imageUrl,
@@ -71,7 +71,7 @@ const getUploadHistory = async (req, res) => {
       .limit(limit)
       .select('fileName fileUrl fileSize mimeType createdAt');
 
-    res.json({
+    res.status(200).json({
       success: true,
       uploads
     });

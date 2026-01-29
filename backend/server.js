@@ -20,7 +20,7 @@ app.use(express.urlencoded({ extended: true }));
 const PORT = process.env.PORT;
 app.listen(PORT, () => {
 	console.log("Server is running on Port " + PORT);
-	connectDB();
+	// connectDB();
 });
 
 app.get('/', (req, res) => {

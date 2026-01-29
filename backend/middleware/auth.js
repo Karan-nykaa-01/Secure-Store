@@ -11,13 +11,11 @@ const authMiddleware = async (req, res, next) => {
 
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
     
-    const user = await User.findById(decoded.userId).select('-password');
-    
-    if (!user) {
-      return res.status(401).json({ message: 'User not found' });
+    if(decoded.email !== process.env.ADMIN_EMAIL) {
+      return res.status(401).json({ message: 'Invalid token' });
     }
     
-    req.user = user;
+    req.user = { email: decoded.email };
     next();
   } catch (error) {
     if (error.name === 'TokenExpiredError') {

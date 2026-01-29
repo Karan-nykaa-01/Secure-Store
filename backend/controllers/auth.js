@@ -4,7 +4,7 @@ const cookieOptions = {
   httpOnly: true,
   secure: process.env.NODE_ENV === "production",
   maxAge: 6 * 60 * 60 * 1000, // 6 hours
-  sameSite: "strict",
+  sameSite: "None",
 };
 
 const login = async (req, res) => {

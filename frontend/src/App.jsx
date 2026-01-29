@@ -6,15 +6,17 @@ import Login from "./pages/Login";
 import { useContext } from "react";
 import { AppContext } from "./context/AppContext";
 import NotFound from "./pages/NotFound";
-import Loader from "./components/Loader";
+import { FaSpinner } from "react-icons/fa";
 
 export default function App() {
-
   const { user, checkingAuth } = useContext(AppContext);
 
-  // Show loading spinner while checking authentication
   if (checkingAuth) {
-    return <Loader message="Checking authentication..." />;
+    return (
+      <div className="flex items-center justify-center h-screen">
+        <FaSpinner className="animate-spin text-primary" size={40} />
+      </div>
+    );
   }
 
   return (

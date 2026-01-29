@@ -4,7 +4,7 @@ import { AppContext } from "../context/AppContext";
 import { Home, LogOut, LucideHistory, User } from "lucide-react";
 
 export default function Sidebar() {
-  const { logout, user } = useContext(AppContext);
+  const { logout } = useContext(AppContext);
   const rows = [
     {
       label: "Dashboard",
@@ -22,7 +22,6 @@ export default function Sidebar() {
     <aside className="w-64 min-h-screen bg-bg-default border-r border-gray-200 flex flex-col">
       <Header />
       <Navigation rows={rows} />
-      <UserInfo user={user} />
       <LogoutButton logout={logout} />
     </aside>
   );
@@ -62,26 +61,6 @@ function Navigation({ rows }) {
         ))}
       </ul>
     </nav>
-  );
-}
-
-function UserInfo({ user }) {
-  return (
-    <div className="px-4 py-3 border-t border-gray-200">
-      <div className="flex items-center gap-3 px-3 py-2 bg-blue-50 rounded-lg">
-        <div className="w-10 h-10 bg-blue-600 rounded-full flex items-center justify-center flex-shrink-0">
-          <User size={20} className="text-white" />
-        </div>
-        <div className="flex-1 min-w-0">
-          <p className="text-sm font-semibold text-gray-900 truncate">
-            {user?.name || "User"}
-          </p>
-          <p className="text-xs text-gray-600 truncate">
-            {user?.email || ""}
-          </p>
-        </div>
-      </div>
-    </div>
   );
 }
 

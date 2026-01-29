@@ -1,27 +1,15 @@
-import { useState, useEffect } from 'react';
+import { useEffect, useContext } from 'react';
 import { Clock, Image as ImageIcon, ExternalLink, Calendar, FileText, AlertCircle } from 'lucide-react';
-import { axiosInstance } from '../lib/axiosInstance';
+import { AppContext } from '../context/AppContext';
 import { toast } from 'react-hot-toast';
+import Loader from '../components/Loader';
 
 export default function History() {
-  const [uploads, setUploads] = useState([]);
-  const [loading, setLoading] = useState(true);
+  const { uploads, uploadsLoading, fetchUploadHistory } = useContext(AppContext);
 
   useEffect(() => {
     fetchUploadHistory();
   }, []);
-
-  const fetchUploadHistory = async () => {
-    try {
-      const response = await axiosInstance.get('/aws/history?limit=5');
-      setUploads(response.data.uploads);
-    } catch (error) {
-      console.error('Error fetching history:', error);
-      toast.error(error.response?.data?.message || 'Failed to load upload history');
-    } finally {
-      setLoading(false);
-    }
-  };
 
   const formatDate = (dateString) => {
     const date = new Date(dateString);
@@ -47,15 +35,8 @@ export default function History() {
     return (bytes / (1024 * 1024)).toFixed(2) + ' MB';
   };
 
-  if (loading) {
-    return (
-      <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 flex items-center justify-center">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-16 w-16 border-b-4 border-blue-600 mx-auto mb-4"></div>
-          <p className="text-gray-600 text-lg">Loading your upload history...</p>
-        </div>
-      </div>
-    );
+  if (uploadsLoading) {
+    return <Loader message="Loading your upload history..." />;
   }
 
   return (

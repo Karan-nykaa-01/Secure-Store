@@ -6,21 +6,15 @@ import Login from "./pages/Login";
 import { useContext } from "react";
 import { AppContext } from "./context/AppContext";
 import NotFound from "./pages/NotFound";
+import Loader from "./components/Loader";
 
 export default function App() {
 
-  const { user, loading } = useContext(AppContext);
+  const { user, checkingAuth } = useContext(AppContext);
 
   // Show loading spinner while checking authentication
-  if (loading) {
-    return (
-      <div className="flex items-center justify-center min-h-screen bg-gradient-to-br from-gray-50 to-gray-100">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-16 w-16 border-b-4 border-blue-600 mx-auto mb-4"></div>
-          <p className="text-gray-600 text-lg font-medium">Loading...</p>
-        </div>
-      </div>
-    );
+  if (checkingAuth) {
+    return <Loader message="Checking authentication..." />;
   }
 
   return (

@@ -1,9 +1,10 @@
-import { useState, useRef } from 'react';
+import { useState, useRef, useContext } from 'react';
 import { Upload, X, CheckCircle, AlertCircle, Image as ImageIcon } from 'lucide-react';
-import { axiosInstance } from '../lib/axiosInstance';
+import { AppContext } from '../context/AppContext';
 import { toast } from 'react-hot-toast';
 
 export default function Dashboard() {
+  const { uploadImage } = useContext(AppContext);
   const [selectedFile, setSelectedFile] = useState(null);
   const [preview, setPreview] = useState(null);
   const [uploading, setUploading] = useState(false);
@@ -47,25 +48,13 @@ export default function Dashboard() {
       return;
     }
 
-    const formData = new FormData();
-    formData.append('image', selectedFile);
-
     setUploading(true);
     setUploadProgress(0);
     try {
-      const response = await axiosInstance.post('/aws/upload', formData, {
-        headers: {
-          'Content-Type': 'multipart/form-data',
-        },
-        onUploadProgress: (progressEvent) => {
-          const percentCompleted = Math.round(
-            (progressEvent.loaded * 100) / progressEvent.total
-          );
-          setUploadProgress(percentCompleted);
-        },
+      await uploadImage(selectedFile, (progress) => {
+        setUploadProgress(progress);
       });
-
-      toast.success('Image uploaded successfully!');
+      
       setUploadSuccess(true);
       
       // Reset after 2 seconds
@@ -73,8 +62,6 @@ export default function Dashboard() {
         handleRemoveFile();
       }, 2000);
     } catch (error) {
-      console.error('Upload error:', error);
-      toast.error(error.response?.data?.message || 'Upload failed');
       setUploadProgress(0);
     } finally {
       setUploading(false);

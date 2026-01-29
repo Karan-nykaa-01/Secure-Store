@@ -1,0 +1,47 @@
+# <!-- ----- STEPS ----- -->
+Step 1: Create a Bucket on S3 ✅
+Step 2: Create a New IAM Policy ✅
+Step 3: Create a New IAM User and Assign Policy ✅
+Step 4: Get Access Keys (Access Key ID, Secret Access Key) ✅
+
+
+# <!-- ----- IAM POLICY ----- -->
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Effect": "Allow",
+      "Action": [
+        "s3:PutObject",
+        "s3:GetObject",
+        "s3:HeadObject"
+      ],
+      "Resource": "arn:aws:s3:::safe-store-s3-bucket/*"
+    }
+  ]
+}
+
+
+# Explanation:
+  PutObject → allows uploading files
+  GetObject → allows reading files
+  HeadObject → allows checking if a file exists
+
+
+# <!-- Names -->
+BucketName = safe-store-s3-bucket
+PolicyName = safe-store-policy
+userName = safe-store-user
+
+
+# <!-- ----- Project Features ----- -->
+1. Authentication (Only login)
+2. Single/Multiple Images Upload
+3. History of Uploaded Images (url, date, time)
+
+
+# <!-- ----- Tech Stack ----- -->
+1. Frontend: ReactJS
+2. Backend: Python (Flask)
+3. Database: SQL
+4. Cloud Storage: AWS S3

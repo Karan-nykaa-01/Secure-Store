@@ -45,3 +45,7 @@ userName = safe-store-user
 2. Backend: Python (Flask)
 3. Database: SQL
 4. Cloud Storage: AWS S3
+
+
+<!-- Doubt -->
+1. Do we need to upload different images to diffrent directories (like fashion, beauty)

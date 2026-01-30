@@ -78,7 +78,6 @@ export const AppProvider = ({ children }) => {
       });
 
       toast.success('Image uploaded successfully!');
-      // Refresh uploads after successful upload
       await fetchUploadHistory();
       return response.data;
     } catch (error) {

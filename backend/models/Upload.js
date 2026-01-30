@@ -13,6 +13,14 @@ const uploadSchema = new mongoose.Schema({
     type: Number,
     required: true
   },
+  bucket: {
+    type: String,
+    required: true
+  },
+  directory: {
+    type: String,
+    required: true
+  },
 }, {
   timestamps: true
 });

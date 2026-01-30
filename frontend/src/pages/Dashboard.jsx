@@ -1,23 +1,33 @@
-import { useState, useRef, useContext } from "react";
-import {
-  Upload,
-  X,
-  CheckCircle,
-  Image as ImageIcon,
-  CloudDownload,
-} from "lucide-react";
+import { useState, useRef, useContext, useEffect } from "react";
+import { Upload, X, CheckCircle, Image as ImageIcon, CloudDownload, } from "lucide-react";
 import { AppContext } from "../context/AppContext";
 import { toast } from "react-hot-toast";
 import Button from "../components/Button";
+import Select from "../components/Select";
+import { getBucketOptions } from "../lib/helper";
 
 export default function Dashboard() {
-  const { uploadImage } = useContext(AppContext);
+  const { uploadImage, getDirectories } = useContext(AppContext);
   const [selectedFile, setSelectedFile] = useState(null);
   const [preview, setPreview] = useState(null);
   const [uploading, setUploading] = useState(false);
   const [uploadSuccess, setUploadSuccess] = useState(false);
   const [uploadProgress, setUploadProgress] = useState(0);
+  const [selectedBucket, setSelectedBucket] = useState("");
+  const [directory, setDirectory] = useState("");
+  const [directories, setDirectories] = useState([]);
   const fileInputRef = useRef(null);
+
+  // Fetch directories when bucket changes
+  useEffect(() => {
+    const fetchDirectories = async () => {
+      if (selectedBucket) {
+        const dirs = await getDirectories(selectedBucket);
+        setDirectories(dirs);
+      }
+    };
+    fetchDirectories();
+  }, [selectedBucket, getDirectories]);
 
   const handleFileSelect = (e) => {
     const file = e.target.files[0];
@@ -30,7 +40,6 @@ export default function Dashboard() {
       setSelectedFile(file);
       setUploadSuccess(false);
 
-      // Create preview
       const reader = new FileReader();
       reader.onloadend = () => {
         setPreview(reader.result);
@@ -55,10 +64,20 @@ export default function Dashboard() {
       return;
     }
 
+    if(!selectedBucket) {
+      toast.error("Please select a bucket");
+      return;
+    }
+
+    if (!directory.trim()) {
+      toast.error("Please specify a directory name");
+      return;
+    }
+
     setUploading(true);
     setUploadProgress(0);
     try {
-      await uploadImage(selectedFile, (progress) => {
+      await uploadImage(selectedFile, selectedBucket, directory, (progress) => {
         setUploadProgress(progress);
       });
 
@@ -105,6 +124,14 @@ export default function Dashboard() {
       <Header />
 
       <div className="bg-white rounded-xl shadow-lg overflow-hidden flex flex-col max-w-3xl mx-auto w-full">
+        <BucketSelector
+          selectedBucket={selectedBucket}
+          setSelectedBucket={setSelectedBucket}
+          directory={directory}
+          setDirectory={setDirectory}
+          directories={directories}
+        />
+
         {!preview ? (
           <UploadArea
             fileInputRef={fileInputRef}
@@ -135,6 +162,39 @@ function Header() {
       <p className="text-sm text-gray-600">
         Upload your images safely to cloud storage with ease.
       </p>
+    </div>
+  );
+}
+
+function BucketSelector({ selectedBucket, setSelectedBucket, directory, setDirectory, directories }) {
+  const bucketOptions = getBucketOptions();
+  
+  const directoryOptions = directories.map(dir => ({
+    value: dir,
+    label: dir
+  }));
+
+  return (
+    <div className="border-b border-gray-200 p-4">
+      <div className="flex gap-4 items-start">
+        <Select
+          label="Select Bucket"
+          options={bucketOptions}
+          value={selectedBucket}
+          onChange={setSelectedBucket}
+          placeholder="Choose a bucket"
+          required
+        />
+
+        <Select
+          label="Directory Name"
+          options={directoryOptions}
+          value={directory}
+          onChange={setDirectory}
+          placeholder={directories.length > 0 ? "Select a directory" : "No directories found"}
+          required
+        />
+      </div>
     </div>
   );
 }
@@ -187,12 +247,11 @@ function PreviewArea({
 }) {
   return (
     <div className="flex flex-col p-6 space-y-4">
-      {/* Image Preview */}
       <div className="relative w-full flex items-center justify-center bg-gray-50 rounded-lg p-4">
         <img
           src={preview}
           alt="Preview"
-          className="max-h-[350px] max-w-full object-contain rounded-lg"
+          className="max-h-[250px] max-w-full object-contain rounded-lg"
         />
         {uploadSuccess && (
           <div className="absolute inset-0 bg-green-500 bg-opacity-90 rounded-lg flex items-center justify-center">
@@ -204,17 +263,14 @@ function PreviewArea({
         )}
       </div>
 
-      {/* File Info */}
       <FileInfo
         selectedFile={selectedFile}
         handleRemoveFile={handleRemoveFile}
         uploading={uploading}
       />
 
-      {/* Progress Bar */}
       {uploading && <ProgressBar uploadProgress={uploadProgress} />}
 
-      {/* Upload Button */}
       <Button
         text={uploadSuccess ? "Uploaded Successfully" : "Upload to Cloud"}
         icon={uploadSuccess ? <CheckCircle /> : <Upload />}

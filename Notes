@@ -48,4 +48,16 @@ userName = safe-store-user
 
 
 <!-- Doubt -->
-1. Do we need to upload different images to diffrent directories (like fashion, beauty)
+1. Specify Bucket (fashion, beauty etc...)
+2. Specify folder inside that bucket (media, brand-logos)
+
+
+<!-- Bucket -->
+1. nf-prod-images/media/${s};done
+2. nyk-prod-mediafiles/media/${s};done
+
+
+<!-- Improvements -->
+1. see existing directories
+2. create a new directory (if we want)
+3. 

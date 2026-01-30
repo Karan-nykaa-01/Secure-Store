@@ -13,3 +13,13 @@ export const copyToClipboard = (url) => {
   navigator.clipboard.writeText(url);
   toast.success("URL copied to clipboard!");
 };
+
+export const getBucketOptions = () => {
+  const fashionBucket = import.meta.env.VITE_BUCKET_FASHION;
+  const beautyBucket = import.meta.env.VITE_BUCKET_BEAUTY;
+
+  return [
+    { value: fashionBucket, label: `Fashion (${fashionBucket})` },
+    { value: beautyBucket, label: `Beauty (${beautyBucket})` }
+  ];
+};

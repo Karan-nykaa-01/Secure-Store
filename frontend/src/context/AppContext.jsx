@@ -58,10 +58,12 @@ export const AppProvider = ({ children }) => {
   };
 
   // UPLOAD IMAGE
-  const uploadImage = async (file, onProgress) => {
+  const uploadImage = async (file, bucket, directory, onProgress) => {
     try {
       const formData = new FormData();
       formData.append('image', file);
+      formData.append('bucket', bucket);
+      formData.append('directory', directory);
 
       const response = await axiosInstance.post('/aws/upload', formData, {
         headers: {
@@ -100,6 +102,17 @@ export const AppProvider = ({ children }) => {
     }
   };
 
+  // GET DIRECTORIES FROM BUCKET
+  const getDirectories = async (bucket) => {
+    try {
+      const response = await axiosInstance.get(`/aws/directories?bucket=${bucket}`);
+      return response.data.directories || [];
+    } catch (error) {
+      console.error('Error fetching directories:', error);
+      return [];
+    }
+  };
+
   return (
     <AppContext.Provider
       value={{
@@ -111,6 +124,7 @@ export const AppProvider = ({ children }) => {
         checkAuth,
         uploadImage,
         fetchUploadHistory,
+        getDirectories,
       }}
     >
       {children}

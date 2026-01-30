@@ -12,7 +12,6 @@ export const AppProvider = ({ children }) => {
   const [user, setUser] = useState(null);
   const [checkingAuth, setCheckingAuth] = useState(true);
   const [uploads, setUploads] = useState([]);
-  const [uploadsLoading, setUploadsLoading] = useState(false);
 
   // Check authentication on mount
   useEffect(() => {
@@ -22,8 +21,8 @@ export const AppProvider = ({ children }) => {
   // CHECK AUTH
   const checkAuth = async () => {
     try {
-      const res = await axiosInstance.get("/auth/me");
-      setUser(res.data.user);
+      const response = await axiosInstance.get("/auth/me");
+      setUser(response.data.user);
     } catch (error) {
       setUser(null);
       console.error("Authentication check failed", error);
@@ -35,9 +34,9 @@ export const AppProvider = ({ children }) => {
   // LOGIN
   const login = async (email, password) => {
     try {
-      const res = await axiosInstance.post("/auth/login", { email, password });
-      toast.success(res.data.message || "Login successful");
-      setUser(res.data.user);
+      const response = await axiosInstance.post("/auth/login", { email, password });
+      toast.success(response.data.message || "Login successful");
+      setUser(response.data.user);
       navigate("/");
     } catch (error) {
       console.log(error);
@@ -48,8 +47,8 @@ export const AppProvider = ({ children }) => {
   // LOGOUT
   const logout = async () => {
     try {
-      const res = await axiosInstance.get("/auth/logout");
-      toast.success(res.data.message || "Logout successful");
+      const response = await axiosInstance.get("/auth/logout");
+      toast.success(response.data.message || "Logout successful");
       setUser(null);
       navigate("/login");
     } catch (error) {
@@ -92,17 +91,13 @@ export const AppProvider = ({ children }) => {
 
   // FETCH UPLOAD HISTORY
   const fetchUploadHistory = async (limit = 5) => {
-    setUploadsLoading(true);
     try {
       const response = await axiosInstance.get(`/aws/history?limit=${limit}`);
-      setUploads(response.data.uploads);
-      return response.data.uploads;
+      setUploads(response.data.uploads || []);
     } catch (error) {
       console.error('Error fetching history:', error);
       toast.error(error.response?.data?.message || 'Failed to load upload history');
-      return [];
-    } finally {
-      setUploadsLoading(false);
+      setUploads([]);
     }
   };
 
@@ -112,7 +107,6 @@ export const AppProvider = ({ children }) => {
         user,
         checkingAuth,
         uploads,
-        uploadsLoading,
         login,
         logout,
         checkAuth,
